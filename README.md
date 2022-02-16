@@ -1,6 +1,6 @@
 # myextension
 
-[![Github Actions Status](https://github.com/fcollonval/dummy-extension/workflows/Build/badge.svg)](https://github.com/fcollonval/dummy-extension/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/dummy-extension/main?urlpath=lab)
+[![Github Actions Status](https://github.com/github_username/myextension/workflows/Build/badge.svg)](https://github.com/github_username/myextension/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/github_username/myextension/main?urlpath=lab)
 
 A JupyterLab extension.
 
