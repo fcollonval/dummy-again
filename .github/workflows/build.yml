@@ -81,7 +81,7 @@ jobs:
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
 
-        pip install "jupyterlab~=3.1" "myextension*.whl"
+        pip install "jupyterlab~=3.1" myextension*.whl
 
 
         jupyter server extension list
@@ -113,7 +113,7 @@ jobs:
     - name: Install the extension
       run: |
         set -eux
-        python -m pip install "jupyterlab~=3.1" "myextension*.whl"
+        python -m pip install "jupyterlab~=3.1" myextension*.whl
 
     - name: Install browser
       working-directory: ui-tests
