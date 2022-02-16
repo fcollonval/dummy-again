@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.9']
 
     steps:
     - name: Checkout
@@ -54,13 +51,9 @@ jobs:
 
         pip install build
         python -m build
-        cp dist/*.tar.gz myextension.tar.gz
-        cp dist/*.tar.gz myextension.tar.gz
         pip uninstall -y "myextension" jupyterlab
-        rm -rf myextension
 
     - uses: actions/upload-artifact@v2
-      if: matrix.python-version == '3.9'
       with:
         name: extension-artifacts
         path: dist/myextension*
@@ -76,7 +69,6 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v2
       with:
-        # Ensure the python version matches the one in build
         python-version: '3.9'
         architecture: 'x64'
     - uses: actions/download-artifact@v2
@@ -88,8 +80,9 @@ jobs:
         # Remove NodeJS, twice to take care of system and locally installed node versions.
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
-        pip install ./myextension*.tar.gz
-        pip install jupyterlab
+
+        pip install "jupyterlab~=3.1" "myextension*.whl"
+
 
         jupyter server extension list
         jupyter server extension list 2>&1 | grep -ie "myextension.*OK"
@@ -102,10 +95,9 @@ jobs:
     name: Integration tests
     needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Ensure the python version matches the one in build
-        python-version: ['3.9']
+
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
 
     steps:
     - name: Checkout
@@ -117,56 +109,37 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: extension-artifacts
-
+        
     - name: Install the extension
       run: |
         set -eux
-        python -m pip install jupyterlab~=3.1 ./myextension*.whl
-
-    - name: Launch JupyterLab
-      working-directory: ui-tests
-      run: |
-        (jupyter lab --config jupyter_server_test_config.py > /tmp/jupyterlab_server.log 2>&1) &
+        python -m pip install "jupyterlab~=3.1" "myextension*.whl"
 
     - name: Install browser
       working-directory: ui-tests
-      run: |
-        jlpm install
-        jlpm playwright install chromium
+      env:
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      run: jlpm install
 
-    - name: Wait for JupyterLab
-      uses: ifaxity/wait-on-action@v1
+    - uses: actions/cache@v2
       with:
-        resource: http-get://localhost:8888/lab
-        timeout: 360000
+        path: |
+          ${{ github.workspace }}/pw-browsers
+        key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
+
+    - run: jlpm playwright install chromium
+      working-directory: ui-tests
 
     - name: Execute integration tests
       working-directory: ui-tests
       run: |
-        jlpm run playwright test
-
-    - name: Upload Playwright Test assets
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: myextension-playwright-test-assets
-        path: |
-          ui-tests/test-results
+        jlpm playwright test
 
     - name: Upload Playwright Test report
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: myextension-playwright-report
+        name: myextension-playwright-tests
         path: |
+          ui-tests/test-results
           ui-tests/playwright-report
-
-    - name: Stop JupyterLab
-      if: always()
-      run: |
-        kill -s SIGTERM $(pgrep jupyter-lab)
-
-    - name: Print JupyterLab logs
-      if: always()
-      run: |
-        cat /tmp/jupyterlab_server.log
