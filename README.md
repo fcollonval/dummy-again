@@ -3,8 +3,6 @@
 [![Github Actions Status](https://github.com/fcollonval/dummy-again/workflows/Build/badge.svg)](https://github.com/fcollonval/dummy-again/actions/workflows/build.yml)
 A JupyterLab extension.
 
-> This is a silent change to be published.
-
 ## Requirements
 
 - JupyterLab >= 4.0.0
