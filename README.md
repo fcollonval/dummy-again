@@ -1,7 +1,7 @@
 # myextension
 
 [![Github Actions Status](https://github.com/fcollonval/dummy-again/workflows/Build/badge.svg)](https://github.com/fcollonval/dummy-again/actions/workflows/build.yml)
-A JupyterLab extension.
+A useless JupyterLab extension.
 
 ## Requirements
 
